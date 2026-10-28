@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Our Secret Days ♡</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#111;color:white}
+button,input{font:inherit}
+button{cursor:pointer}
+.screen{min-height:100dvh;padding:24px;display:none}
+.active{display:block}
+#lock{background:linear-gradient(145deg,#a6b7c9,#675b67);text-align:center}
+.status{display:flex;justify-content:space-between;font-weight:bold;margin-bottom:55px}
+.clock{font-size:76px;font-weight:200}
+.date{font-size:18px}
+.notice{background:#ffffff55;border-radius:18px;padding:16px;margin-top:45px;text-align:left}
+.bottom{position:absolute;bottom:55px;left:0;width:100%}
+.primary{border:0;border-radius:22px;padding:14px 28px;background:#fff}
+#home{background:linear-gradient(150deg,#aabdd1,#f2c8c9)}
+.apps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:70px;text-align:center}
+.app{border:0;background:none;color:white}
+.ico{display:block;font-size:35px;background:#ffffff88;border-radius:22px;padding:15px;margin-bottom:8px}
+#chat{background:#b2c7d9;color:#222;padding:0}
+.header{padding:55px 18px 20px;text-align:center;font-weight:bold;background:#b2c7d9}
+.messages{height:calc(100dvh - 190px);overflow:auto;padding:20px}
+.bubble{max-width:78%;padding:12px 15px;border-radius:17px;margin:10px 0;clear:both;width:max-content;background:white}
+.me{background:#ffe500;float:right}
+.jake{float:left}
+.composer{display:flex;gap:8px;padding:12px;background:white;position:absolute;bottom:0;width:100%}
+.composer input{flex:1;min-width:0;border:0;background:#eee;border-radius:22px;padding:12px}
+.composer button{border:0;border-radius:20px;background:#ffe500;padding:10px}
+.back{float:left;border:0;background:none;font-size:24px}
+#settings{background:#f6f6f6;color:#222}
+.field{padding:12px;border:1px solid #ddd;border-radius:12px;width:100%;margin:12px 0}
+</style>
+</head>
+<body>
+<section id="lock" class="screen active">
+<div class="status"><span id="topTime">11:15</span><span>●●● Wi-Fi ▰</span></div>
+<div>🔒</div>
+<div class="date" id="today"></div>
+<div class="clock" id="bigTime">11:15</div>
+<div class="notice">💬 심재윤<br>자? 보고싶어</div>
+<div class="bottom"><button class="primary" onclick="go('home')">위로 쓸어올려서 열기 ↑</button></div>
+</section>
+<section id="home" class="screen">
+<div class="status"><span>11:15</span><span>●●● Wi-Fi ▰</span></div>
+<h2>Our Secret Days ♡</h2>
+<p>우리만 아는 이야기</p>
+<div class="apps">
+<button class="app" onclick="go('chat')"><span class="ico">💬</span>카카오톡</button>
+<button class="app" onclick="go('settings')"><span class="ico">⚙️</span>설정</button>
+<button class="app" onclick="nextDay()"><span class="ico">📅</span>다음 날</button>
+</div>
+</section>
+<section id="chat" class="screen">
+<div class="header"><button class="back" onclick="go('home')">‹</button>심재윤 🐶</div>
+<div class="messages" id="messages"></div>
+<div class="composer">
+<input id="reply" placeholder="메시지 입력" onkeydown="if(event.key==='Enter')send()">
+<button onclick="send()">전송</button>
+</div>
+</section>
+<section id="settings" class="screen">
+<button onclick="go('home')">‹ 뒤로</button>
+<h2>설정 ⚙️</h2>
+<p>내 이름</p>
+<input class="field" id="name" placeholder="레이">
+<button class="primary" style="background:#ddd" onclick="saveName()">저장</button>
+<p>交際1年・完全秘密の設定 ♡</p>
+</section>
+<script>
+let date=new Date();
+let name=localStorage.getItem('secretName')||'레이';
+let history=JSON.parse(localStorage.getItem('secretChat')||'null')||[
+{who:'jake',text:'자기 뭐해?'},
+{who:'me',text:'그냥 쉬고 있어 ㅎㅎ'},
+{who:'jake',text:'밥은 먹었어?'},
+{who:'jake',text:'오늘 좀 보고싶네'}
+];
+function go(id){
+document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+if(id==='chat')render();
+}
+function render(){
+let box=document.getElementById('messages');
+box.innerHTML='';
+history.forEach(m=>{
+let b=document.createElement('div');
+b.className='bubble '+m.who;
+b.textContent=m.text;
+box.appendChild(b);
+});
+box.scrollTop=box.scrollHeight;
+}
+function send(){
+let input=document.getElementById('reply');
+let value=input.value.trim();
+if(!value)return;
+history.push({who:'me',text:value});
+input.value='';
+store();render();
+setTimeout(()=>{
+let answers=['ㅋㅋ 귀엽네','밥 먹었어?','나도 보고싶어','오늘 많이 바빴어','잘했어 '+name+' ❤️','잠깐 전화할까?'];
+history.push({who:'jake',text:answers[Math.floor(Math.random()*answers.length)]});
+store();render();
+},1200);
+}
+function store(){localStorage.setItem('secretChat',JSON.stringify(history))}
+function saveName(){
+name=document.getElementById('name').value.trim()||'레이';
+localStorage.setItem('secretName',name);
+alert('저장했어 ♡');
+}
+function nextDay(){
+date.setDate(date.getDate()+1);
+updateDate();
+alert('다음 날 ♡');
+}
+function updateDate(){
+document.getElementById('today').textContent=date.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'});
+}
+function updateClock(){
+let t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false});
+document.getElementById('topTime').textContent=t;
+document.getElementById('bigTime').textContent=t;
+}
+document.getElementById('name').value=name;
+updateDate();updateClock();
+setInterval(updateClock,30000);
+</script>
+</body>
+</html>
