@@ -268,5 +268,299 @@ app.innerHTML=`<div class="page">
 }
 lock();
 </script>
+  
+<style>
+.ig{background:#fff;color:#111;min-height:100dvh;padding-bottom:75px;font-family:-apple-system,sans-serif}
+.ig *{box-sizing:border-box}
+.ig button{background:none;color:inherit;border:0;cursor:pointer}
+.ighead{height:55px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eee;font-size:21px;font-weight:700}
+.ighead button{font-size:23px}
+.ignav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(550px,100%);height:65px;background:#fff;border-top:1px solid #ddd;display:flex;align-items:center;justify-content:space-around;z-index:20}
+.ignav button{font-size:25px}
+.igavatar{width:45px;height:45px;border-radius:50%;object-fit:cover;background:#eee}
+.igbig{width:85px;height:85px}
+.igline{display:flex;align-items:center;gap:12px;padding:12px}
+.igmuted{color:#888;font-size:12px}
+.igbtn{background:#eee!important;border-radius:8px;padding:9px 14px;font-weight:600}
+.igblue{background:#3897f0!important;color:white!important}
+.iggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.iggrid img{width:100%;aspect-ratio:1;object-fit:cover}
+.igpost{border-bottom:1px solid #eee;margin-bottom:12px}
+.igpost>img{width:100%;max-height:520px;object-fit:cover;background:#eee}
+.igactions{padding:9px 12px;font-size:24px;display:flex;gap:16px}
+.igcaption{padding:3px 13px 10px;font-size:14px}
+.igcomment{padding:4px 13px;font-size:13px}
+.iginput{display:flex;gap:8px;padding:12px;border-top:1px solid #eee}
+.iginput input{flex:1;min-width:0;padding:10px;border:1px solid #eee;border-radius:20px}
+.iginput button{color:#3897f0;font-weight:600}
+.igbubble{padding:11px 15px;border-radius:18px;background:#eee;margin:10px 14px;max-width:78%;width:max-content;white-space:pre-wrap}
+.igmine{background:#3897f0;color:white;margin-left:auto}
+.igfield{display:block;width:100%;border:1px solid #ddd;border-radius:8px;padding:12px;margin:10px 0}
+.igstories{display:flex;gap:14px;overflow-x:auto;padding:15px 10px}
+.igstories button{min-width:70px;font-size:11px;text-align:center}
+.igstories img{width:65px;height:65px;border-radius:50%;object-fit:cover;border:3px solid #dd6e98}
+</style>
+<script>
+const IG_REPO="siMsoG1517jjj/our-secret-days";
+const IG_NAMES=["rei_","jakesim","yangjungwon_","simplyjjong","sunoo._.03","nikiiii","jay"];
+const IG_DISPLAY=["레이","심재윤","양정원","박성훈","선우","니키","박종성"];
+const IG_KEY="our-secret-instagram-v1";
+const igDefault={
+ username:"rei_",name:"레이",bio:"♡ jakesim",
+ avatar:9,following:[1,2,3,4,5,6],
+ removed:[],likes:[],comments:{},dm:{},extra:[]
+};
+let igState;
+try{igState=JSON.parse(localStorage.getItem(IG_KEY))||igDefault}catch(e){igState=igDefault}
+let igImages=[],igPage="feed",igPerson=0,igPostId="",igChatTo=1,igListType="followers",igListOwner=0;
+function igSave(){localStorage.setItem(IG_KEY,JSON.stringify(igState))}
+function igName(i){return i===0?igState.username:IG_NAMES[i]}
+function igDisplay(i){return i===0?igState.name:IG_DISPLAY[i]}
+function igPhoto(n){return igImages[n%Math.max(igImages.length,1)]||""}
+function igAvatar(i){
+ const n=i===0?igState.avatar:[9,7,2,3,1,5,0][i];
+ return igPhoto(n);
+}
+function igImage(url,cls="igavatar"){
+ return url?`<img class="${cls}" src="${clean(url)}">`:`<span class="${cls}">♡</span>`;
+}
+function igHeader(t){
+ return `<div class="ighead"><button onclick="igBack()">‹</button><span>${clean(t)}</span><button onclick="igOpen('dmList')">✉</button></div>`;
+}
+function igNav(){
+ return `<div class="ignav">
+ <button onclick="home()">⌂</button>
+ <button onclick="igOpen('feed')">◎</button>
+ <button onclick="igOpen('dmList')">✉</button>
+ <button onclick="igOpen('photos')">▦</button>
+ <button onclick="igProfile(0)">${igImage(igAvatar(0))}</button>
+ </div>`;
+}
+function igOpen(p){igPage=p;igRender()}
+function igBack(){
+ if(igPage==="post")igProfile(igPerson);
+ else if(igPage==="dm")igOpen("dmList");
+ else if(igPage==="list")igProfile(igListOwner);
+ else if(igPage==="edit")igProfile(0);
+ else if(igPage==="profile")igOpen("feed");
+ else home();
+}
+function igProfile(i){igPerson=i;igOpen("profile")}
+function igPosts(){
+ let all=[];
+ const sets=[[4,5,6,9],[7,0,8,3,5,6],[2,4],[3,6],[1,5],[5,8],[0,7]];
+ for(let i=0;i<7;i++)sets[i].forEach((im,n)=>{
+  const id=i+"-"+n;
+  if(!igState.removed.includes(id))all.push({
+   id,owner:i,im,caption:[
+    "우리의 하루 ♡","좋았던 날","기억하고 싶은 순간",
+    "다음에 또 가자","☁️","오늘도 행복하게"
+   ][(i+n)%6],time:100-i*8-n*10
+  });
+ });
+ return [...igState.extra,...all].sort((a,b)=>b.time-a.time);
+}
+function igPostCard(p){
+ const liked=igState.likes.includes(p.id);
+ const comments=igState.comments[p.id]||[];
+ const starter=p.owner===0
+  ?`<div class="igcomment"><b>jakesim</b> 귀엽네 ㅎㅎ ❤️</div>`
+  :p.owner===1
+  ?`<div class="igcomment"><b>${clean(igName(0))}</b> 보고 싶어 🥹</div><div class="igcomment"><b>yangjungwon_</b> ㅋㅋㅋㅋ</div>`
+  :`<div class="igcomment"><b>jakesim</b> ㅋㅋㅋ 좋아</div>`;
+ return `<div class="igpost">
+ <div class="igline">
+ ${igImage(igAvatar(p.owner))}
+ <button onclick="igProfile(${p.owner})"><b>${clean(igName(p.owner))}</b></button>
+ <span style="flex:1"></span>
+ ${p.owner===0?`<button onclick="igDelete('${p.id}')">⋯</button>`:""}
+ </div>
+ ${igImage(igPhoto(p.im),"igphoto")}
+ <div class="igactions">
+ <button onclick="igLike('${p.id}')">${liked?"❤️":"♡"}</button>
+ <button onclick="igShowPost('${p.id}')">♧</button>
+ <button onclick="igDM(${p.owner===0?1:p.owner})">✉</button>
+ </div>
+ <div class="igcaption"><b>${clean(igName(p.owner))}</b> ${clean(p.caption)}</div>
+ ${starter}
+ ${comments.map(c=>`<div class="igcomment"><b>${clean(c.by)}</b> ${clean(c.text)}</div>`).join("")}
+ <div class="iginput">
+ <input id="igc${p.id}" placeholder="댓글 달기...">
+ <button onclick="igComment('${p.id}')">게시</button>
+ </div></div>`;
+}
+function igLike(id){
+ igState.likes=igState.likes.includes(id)?
+ igState.likes.filter(x=>x!==id):[...igState.likes,id];
+ igSave();igRender();
+}
+function igComment(id){
+ const el=document.getElementById("igc"+id),v=el?.value.trim();
+ if(!v)return;
+ (igState.comments[id]??=[]).push({by:igName(0),text:v});
+ igSave();igRender();
+}
+function igDelete(id){
+ if(!confirm("この投稿を削除する？"))return;
+ igState.removed.push(id);
+ igState.extra=igState.extra.filter(p=>p.id!==id);
+ igSave();igOpen("profile");
+}
+function igShowPost(id){igPostId=id;igOpen("post")}
+function igFollow(i){
+ if(i===0)return;
+ igState.following=igState.following.includes(i)?
+ igState.following.filter(x=>x!==i):[...igState.following,i];
+ igSave();igRender();
+}
+function igList(i,type){
+ igListOwner=i;igListType=type;igOpen("list");
+}
+function igDM(i){igChatTo=i;igOpen("dm")}
+function igSendDM(){
+ const el=document.getElementById("igmessage"),v=el?.value.trim();
+ if(!v)return;
+ const msgs=igState.dm[igChatTo]??=[];
+ msgs.push({mine:true,text:v});
+ const replies=igChatTo===1?
+ ["응, 보고 있었어. 무슨 일이야?","ㅋㅋ 귀엽네","오늘 뭐 했어?","나도 보고 싶었어."]:
+ ["ㅋㅋㅋ","맞아!","고마워 😄"];
+ msgs.push({mine:false,text:replies[(msgs.filter(x=>x.mine).length-1)%replies.length]});
+ igState.dm[igChatTo]=msgs;igSave();igRender();
+}
+function igSaveProfile(){
+ igState.username=document.getElementById("igusername").value.trim().replace(/[^a-zA-Z0-9._]/g,"")||"rei_";
+ igState.name=document.getElementById("igname").value.trim()||"레이";
+ igState.bio=document.getElementById("igbio").value;
+ igState.avatar=Number(document.getElementById("igavatar").value);
+ igSave();igProfile(0);
+}
+function igAddPost(){
+ const im=Number(document.getElementById("ignewphoto").value);
+ const caption=document.getElementById("ignewcaption").value;
+ igState.extra.push({id:"x"+Date.now(),owner:0,im,caption,time:Date.now()});
+ igSave();igProfile(0);
+}
+function igRender(){
+ let h="";
+ if(igPage==="feed"){
+ h=`${igHeader("Instagram")}
+ <div class="igstories">${IG_NAMES.map((_,i)=>`
+ <button onclick="igProfile(${i})">${igImage(igAvatar(i))}<div>${clean(igName(i))}</div></button>`).join("")}</div>
+ ${igPosts().map(igPostCard).join("")}`;
+ }
+ else if(igPage==="profile"){
+ const i=igPerson,p=igPosts().filter(x=>x.owner===i);
+ const following=igState.following.includes(i);
+ h=`${igHeader(igName(i))}
+ <div class="igline">${igImage(igAvatar(i),"igavatar igbig")}
+ <div style="flex:1;display:flex;justify-content:space-around;text-align:center">
+ <button><b>${p.length}</b><br><small>게시물</small></button>
+ <button onclick="igList(${i},'followers')"><b>${i===0?68:i===1?267:125}</b><br><small>팔로워</small></button>
+ <button onclick="igList(${i},'following')"><b>${i===0?62+igState.following.length:i===1?76:85}</b><br><small>팔로잉</small></button>
+ </div></div>
+ <div style="padding:10px 15px;white-space:pre-wrap"><b>${clean(igDisplay(i))}</b>
+ ${clean(i===0?igState.bio:i===1?"@"+igName(0)+" ❤️":"ENHYPEN ♡")}</div>
+ <div class="igline">
+ ${i===0?`
+ <button class="igbtn" onclick="igOpen('edit')">프로필 편집</button>
+ <button class="igbtn" onclick="igOpen('new')">＋ 게시물</button>`:`
+ <button class="igbtn ${following?"":"igblue"}" onclick="igFollow(${i})">${following?"팔로잉":"팔로우"}</button>
+ <button class="igbtn" onclick="igDM(${i})">메시지</button>`}
+ </div><div style="text-align:center;padding:15px;border-top:1px solid #eee">▦ 게시물</div>
+ <div class="iggrid">${p.map(x=>`<button onclick="igShowPost('${x.id}')">${igImage(igPhoto(x.im),"igphoto")}</button>`).join("")}</div>`;
+ }
+ else if(igPage==="post"){
+ const p=igPosts().find(x=>x.id===igPostId);
+ h=igHeader("게시물")+(p?igPostCard(p):"投稿がありません");
+ }
+ else if(igPage==="list"){
+ const all=igListOwner===0?
+ (igListType==="following"?igState.following:[1,2,3,4,5,6]):
+ [0,1,2,3,4,5,6].filter(i=>i!==igListOwner);
+ h=igHeader(igListType==="followers"?"팔로워":"팔로잉")+
+ `<input class="igfield" id="igsearch" placeholder="검색" oninput="igFilterPeople(this.value)">
+ <div id="igpeople">${igPeople(all)}</div>`;
+ }
+ else if(igPage==="dmList"){
+ h=igHeader("메시지")+IG_NAMES.slice(1).map((_,n)=>{
+ const i=n+1,msgs=igState.dm[i]||[];
+ return `<div class="igline" onclick="igDM(${i})">${igImage(igAvatar(i))}
+ <div style="flex:1"><b>${clean(igName(i))}</b><div class="igmuted">${clean(msgs.at(-1)?.text||"메시지를 보내보세요 ♡")}</div></div><span>›</span></div>`;
+ }).join("");
+ }
+ else if(igPage==="dm"){
+ const msgs=igState.dm[igChatTo]||[];
+ h=igHeader(igName(igChatTo))+
+ `<div style="min-height:65vh;padding:15px 0">
+ <div style="text-align:center;padding:20px">${igImage(igAvatar(igChatTo))}<p>${clean(igDisplay(igChatTo))}</p></div>
+ ${msgs.map(m=>`<div class="igbubble ${m.mine?"igmine":""}">${clean(m.text)}</div>`).join("")}
+ </div><div class="iginput"><input id="igmessage" placeholder="메시지..." onkeydown="if(event.key==='Enter')igSendDM()"><button onclick="igSendDM()">보내기</button></div>`;
+ }
+ else if(igPage==="photos"){
+ h=igHeader("사진")+`<div style="padding:18px"><b>우리의 추억 ♡</b> · ${igImages.length}장</div>
+ <div class="iggrid">${igImages.map((x,i)=>`<button onclick="igPhotoView(${i})">${igImage(x,"igphoto")}</button>`).join("")}</div>`;
+ }
+ else if(igPage==="photoView"){
+ h=igHeader("사진")+`<img src="${clean(igPhoto(igPostId))}" style="width:100%;margin-top:30px"><p style="text-align:center">우리의 추억 ♡</p>`;
+ }
+ else if(igPage==="edit"){
+ h=igHeader("프로필 편집")+`<div style="padding:20px">
+ <label>사용자 이름<input class="igfield" id="igusername" value="${clean(igState.username)}"></label>
+ <label>이름<input class="igfield" id="igname" value="${clean(igState.name)}"></label>
+ <label>소개<textarea class="igfield" id="igbio">${clean(igState.bio)}</textarea></label>
+ <label>プロフィール写真<select class="igfield" id="igavatar">${igImages.map((_,i)=>`<option value="${i}" ${igState.avatar===i?"selected":""}>写真 ${i+1}</option>`).join("")}</select></label>
+ <button class="igbtn igblue" onclick="igSaveProfile()">保存する</button></div>`;
+ }
+ else if(igPage==="new"){
+ h=igHeader("새 게시물")+`<div style="padding:20px">
+ <label>写真を選ぶ<select class="igfield" id="ignewphoto">${igImages.map((_,i)=>`<option value="${i}">写真 ${i+1}</option>`).join("")}</select></label>
+ <textarea class="igfield" id="ignewcaption" placeholder="キャプション"></textarea>
+ <button class="igbtn igblue" onclick="igAddPost()">投稿する</button></div>`;
+ }
+ app.innerHTML=`<div class="ig">${h}${igNav()}</div>`;
+}
+function igPeople(arr){
+ return arr.map(i=>`<div class="igline" data-person="${clean(igName(i).toLowerCase())}">
+ <button onclick="igProfile(${i})">${igImage(igAvatar(i))}</button>
+ <div style="flex:1" onclick="igProfile(${i})"><b>${clean(igName(i))}</b><div class="igmuted">${clean(igDisplay(i))}</div></div>
+ ${i===0?"":`<button class="igbtn ${igState.following.includes(i)?"":"igblue"}" onclick="igFollow(${i})">${igState.following.includes(i)?"팔로잉":"팔로우"}</button>`}
+ </div>`).join("");
+}
+function igFilterPeople(q){
+ document.querySelectorAll("[data-person]").forEach(el=>{
+ el.style.display=el.dataset.person.includes(q.toLowerCase())?"flex":"none";
+ });
+}
+function igPhotoView(i){igPostId=i;igOpen("photoView")}
+async function igLoadImages(){
+ try{
+ const r=await fetch("https://api.github.com/repos/"+IG_REPO+"/contents/");
+ if(!r.ok)throw Error("画像の取得に失敗");
+ const files=await r.json();
+ igImages=files.filter(f=>f.type==="file"&&/\.(jpg|jpeg|png|webp|gif)$/i.test(f.name))
+ .sort((a,b)=>a.name.localeCompare(b.name))
+ .map(f=>f.download_url);
+ }catch(e){console.warn(e)}
+}
+home=function(){
+ app.innerHTML=`<div class="wall">${status()}
+ <div class="glass" style="margin-top:55px">
+ 💗 재윤이 & 레이
+ <div style="margin-top:12px">함께한 지</div>
+ <b style="font-size:65px">599</b> 일
+ <div>600일까지 1일 남음</div></div>
+ <div class="apps">
+ <button onclick="chats()"><div class="ico">💬</div>카카오톡</button>
+ <button onclick="igOpen('feed')"><div class="ico">📷</div>Instagram</button>
+ <button onclick="memo()"><div class="ico">📝</div>메모</button>
+ <button onclick="igOpen('dmList')"><div class="ico">✉️</div>Instagram DM</button>
+ <button onclick="igOpen('photos')"><div class="ico">🖼️</div>사진</button>
+ <button onclick="settings()"><div class="ico">⚙️</div>설정</button>
+ </div><div class="bottom"><button class="soft" onclick="lock()">🔒 잠금</button></div></div>`;
+};
+igLoadImages();
+</script>
+
 </body>
 </html>
