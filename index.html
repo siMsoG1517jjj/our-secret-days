@@ -1,137 +1,272 @@
 
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Our Secret Days ♡</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#111;color:white}
+body{margin:0;font-family:-apple-system,sans-serif;background:#222}
 button,input{font:inherit}
-button{cursor:pointer}
-.screen{min-height:100dvh;padding:24px;display:none}
-.active{display:block}
-#lock{background:linear-gradient(145deg,#a6b7c9,#675b67);text-align:center}
-.status{display:flex;justify-content:space-between;font-weight:bold;margin-bottom:55px}
-.clock{font-size:76px;font-weight:200}
-.date{font-size:18px}
-.notice{background:#ffffff55;border-radius:18px;padding:16px;margin-top:45px;text-align:left}
-.bottom{position:absolute;bottom:55px;left:0;width:100%}
-.primary{border:0;border-radius:22px;padding:14px 28px;background:#fff}
-#home{background:linear-gradient(150deg,#aabdd1,#f2c8c9)}
-.apps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:70px;text-align:center}
-.app{border:0;background:none;color:white}
-.ico{display:block;font-size:35px;background:#ffffff88;border-radius:22px;padding:15px;margin-bottom:8px}
-#chat{background:#b2c7d9;color:#222;padding:0}
-.header{padding:55px 18px 20px;text-align:center;font-weight:bold;background:#b2c7d9}
-.messages{height:calc(100dvh - 190px);overflow:auto;padding:20px}
-.bubble{max-width:78%;padding:12px 15px;border-radius:17px;margin:10px 0;clear:both;width:max-content;background:white}
-.me{background:#ffe500;float:right}
-.jake{float:left}
-.composer{display:flex;gap:8px;padding:12px;background:white;position:absolute;bottom:0;width:100%}
-.composer input{flex:1;min-width:0;border:0;background:#eee;border-radius:22px;padding:12px}
-.composer button{border:0;border-radius:20px;background:#ffe500;padding:10px}
-.back{float:left;border:0;background:none;font-size:24px}
-#settings{background:#f6f6f6;color:#222}
-.field{padding:12px;border:1px solid #ddd;border-radius:12px;width:100%;margin:12px 0}
+button{border:0;cursor:pointer}
+#app{max-width:550px;margin:auto;min-height:100dvh}
+.wall{min-height:100dvh;background:linear-gradient(145deg,#aaa096,#5e5054 55%,#29232d);color:white;padding:20px;position:relative}
+.status{display:flex;justify-content:space-between;font-weight:bold}
+.center{text-align:center;padding-top:65px}
+.clock{font-size:80px;font-weight:200}
+.glass{background:#ffffff40;border-radius:24px;padding:20px;margin-top:25px}
+.bottom{position:absolute;bottom:55px;left:0;right:0;text-align:center}
+.soft{background:#ffffff44;color:white;border-radius:25px;padding:13px 25px}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;max-width:300px;margin:35px auto}
+.keys button{width:78px;height:78px;border-radius:50%;font-size:32px;background:#ffffff40;color:white}
+.apps{display:grid;grid-template-columns:repeat(4,1fr);gap:25px 8px;margin-top:40px;text-align:center}
+.apps button{background:none;color:white;font-size:12px}
+.ico{display:grid;place-items:center;background:white;color:#222;border-radius:18px;width:65px;height:65px;margin:auto auto 7px;font-size:32px}
+.page{background:white;min-height:100dvh}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:18px;border-bottom:1px solid #eee}
+.bar button{background:none;font-size:24px}
+.person{width:100%;display:flex;gap:15px;text-align:left;background:white;padding:20px;border-bottom:1px solid #eee}
+.avatar{font-size:28px;background:#d0dbe3;border-radius:18px;padding:13px}
+.sub{font-size:13px;color:#888}
+.chat{height:calc(100dvh - 65px);display:flex;flex-direction:column;background:#b3c7d8}
+.messages{flex:1;overflow:auto;padding:15px}
+.bubble{white-space:pre-wrap;max-width:82%;width:max-content;padding:12px;border-radius:12px;margin:10px 0;line-height:1.5;overflow-wrap:anywhere}
+.j{background:white;margin-right:auto}
+.me{background:#ffe55d;margin-left:auto}
+.day{text-align:center;color:#61778b;font-size:12px;margin:18px}
+.composer{display:flex;gap:8px;background:white;padding:10px}
+.composer input{flex:1;min-width:0;padding:12px;border:1px solid #ddd;border-radius:8px}
+.composer button{background:#ffe55d;border-radius:8px;padding:12px}
+.hint{text-align:center;font-size:12px;color:#61778b;padding:6px}
 </style>
 </head>
 <body>
-<section id="lock" class="screen active">
-<div class="status"><span id="topTime">11:15</span><span>●●● Wi-Fi ▰</span></div>
-<div>🔒</div>
-<div class="date" id="today"></div>
-<div class="clock" id="bigTime">11:15</div>
-<div class="notice">💬 심재윤<br>자? 보고싶어</div>
-<div class="bottom"><button class="primary" onclick="go('home')">위로 쓸어올려서 열기 ↑</button></div>
-</section>
-<section id="home" class="screen">
-<div class="status"><span>11:15</span><span>●●● Wi-Fi ▰</span></div>
-<h2>Our Secret Days ♡</h2>
-<p>우리만 아는 이야기</p>
-<div class="apps">
-<button class="app" onclick="go('chat')"><span class="ico">💬</span>카카오톡</button>
-<button class="app" onclick="go('settings')"><span class="ico">⚙️</span>설정</button>
-<button class="app" onclick="nextDay()"><span class="ico">📅</span>다음 날</button>
-</div>
-</section>
-<section id="chat" class="screen">
-<div class="header"><button class="back" onclick="go('home')">‹</button>심재윤 🐶</div>
-<div class="messages" id="messages"></div>
-<div class="composer">
-<input id="reply" placeholder="메시지 입력" onkeydown="if(event.key==='Enter')send()">
-<button onclick="send()">전송</button>
-</div>
-</section>
-<section id="settings" class="screen">
-<button onclick="go('home')">‹ 뒤로</button>
-<h2>설정 ⚙️</h2>
-<p>내 이름</p>
-<input class="field" id="name" placeholder="레이">
-<button class="primary" style="background:#ddd" onclick="saveName()">저장</button>
-<p>交際1年・完全秘密の設定 ♡</p>
-</section>
+<div id="app"></div>
 <script>
-let date=new Date();
-let name=localStorage.getItem('secretName')||'레이';
-let history=JSON.parse(localStorage.getItem('secretChat')||'null')||[
-{who:'jake',text:'자기 뭐해?'},
-{who:'me',text:'그냥 쉬고 있어 ㅎㅎ'},
-{who:'jake',text:'밥은 먹었어?'},
-{who:'jake',text:'오늘 좀 보고싶네'}
+const app=document.getElementById("app");
+const KEY="secret-days-jake-story";
+
+const beginning=[
+["j","오늘 일 끝났어?","10월 22일"],
+["me","응! 이제 집 가"],
+["j","조심히 들어가. 집 가면 연락해 ㅎㅎ"],
+["me","보고 싶다"],
+["j","나도. 다음에 만나면 오래 같이 있자"],
+["j","미안 오늘도 전화 못 할 것 같아. 연습이 늦게 끝났어.","10월 26일"],
+["me","알겠어"],
+["j","왜 이렇게 말이 없어? 무슨 일 있어?","10월 28일"],
+["me","요즘 우리 좀 달라진 것 같아"],
+["j","…무슨 뜻이야?"],
+["j","내가 요즘 연락 잘 못 한 거 알아."],
+["j","우리 얘기 좀 하자. 나 피하지 않을게."]
 ];
-function go(id){
-document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-if(id==='chat')render();
+
+let story;
+try{story=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!story||!Array.isArray(story.messages)){
+story={messages:beginning.map(x=>[...x]),stage:0,done:false};
+}
+let pinCode="";
+
+function save(){localStorage.setItem(KEY,JSON.stringify(story))}
+function clean(s){
+return String(s).replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",
+'"':"&quot;","'":"&#39;"
+}[c]));
+}
+function status(){
+return '<div class="status"><span>11:15</span><span>▮▮▮ ◕ ▰</span></div>';
+}
+function lock(){
+app.innerHTML=`<div class="wall">${status()}
+<div class="center">🔒
+<div style="font-size:21px;margin-top:15px">10월 28일 수요일</div>
+<div class="clock">11:15</div></div>
+<div class="glass">💬 심재윤 · 지금
+<div style="margin-top:7px">우리 얘기 좀 하자. 나 피하지 않을게.</div></div>
+<div class="bottom"><button class="soft" onclick="pin()">위로 쓸어올려서 열기 ↑</button></div>
+</div>`;
+}
+function pin(){
+pinCode="";
+app.innerHTML=`<div class="wall">${status()}
+<div class="center"><h2>🔒<br>암호 입력</h2>
+<div id="dots" style="font-size:30px;letter-spacing:10px">○○○○</div>
+<div class="keys">${[1,2,3,4,5,6,7,8,9,"",0,"⌫"].map(n=>
+n===""?"<span></span>":`<button data-num="${n}">${n}</button>`
+).join("")}</div>
+<div id="error">비밀번호 4자리</div>
+<button class="soft" onclick="lock()" style="margin-top:25px">취소</button>
+</div></div>`;
+document.querySelectorAll("[data-num]").forEach(b=>{
+b.onclick=()=>digit(b.dataset.num);
+});
+}
+function digit(n){
+pinCode=n==="⌫"?pinCode.slice(0,-1):pinCode+n;
+document.getElementById("dots").textContent=
+"●".repeat(pinCode.length)+"○".repeat(4-pinCode.length);
+if(pinCode.length===4){
+if(pinCode==="1115")home();
+else{
+pinCode="";
+document.getElementById("error").textContent="암호가 틀렸습니다";
+document.getElementById("dots").textContent="○○○○";
+}
+}
+}
+function home(){
+app.innerHTML=`<div class="wall">${status()}
+<div class="glass" style="margin-top:55px">
+💗 재윤이 & 레이
+<div style="margin-top:12px">함께한 지</div>
+<b style="font-size:65px">599</b> 일
+<div>600일까지 1일 남음</div></div>
+<div class="apps">
+${[
+["💬","카카오톡","chats"],
+["📷","Instagram","other"],
+["📝","메모","memo"],
+["📅","캘린더","other"],
+["🖼️","사진","other"],
+["⚙️","설정","settings"]
+].map(a=>`<button onclick="${a[2]}()">
+<div class="ico">${a[0]}</div>${a[1]}</button>`).join("")}
+</div>
+<div class="bottom"><button class="soft" onclick="lock()">🔒 잠금</button></div>
+</div>`;
+}
+function chats(){
+let people=[
+["🐶","심재윤",story.messages.at(-1)[1]],
+["🐱","양정원","요즘 날도 좋은데"],
+["👩","엄마","재윤이가 고기 좋아하잖아~"],
+["🎵","박종성","야 너 이름만 부르면서 운다 ㅋㅋ"]
+];
+app.innerHTML=`<div class="page">${status()}
+<div class="bar"><button onclick="home()">‹</button>
+<b style="font-size:25px">채팅</b><span>⌕</span></div>
+${people.map((p,i)=>`<button class="person" onclick="${i===0?'chat()':'other()'}">
+<span class="avatar">${p[0]}</span>
+<span><b>${p[1]}</b><br><span class="sub">${clean(p[2]).slice(0,45)}</span></span>
+</button>`).join("")}</div>`;
+}
+function chat(){
+app.innerHTML=`<div class="page">
+<div class="bar"><button onclick="chats()">‹</button>
+<b>심재윤 🐶</b><button onclick="settings()">⋯</button></div>
+<div class="chat">
+<div class="messages" id="messages"></div>
+<div class="hint" id="hint"></div>
+<form class="composer" id="form">
+<input id="message" placeholder="메시지 입력 / 日本語もOK" ${story.done?"disabled":""}>
+<button ${story.done?"disabled":""}>전송</button>
+</form></div></div>`;
+document.getElementById("form").onsubmit=send;
+document.getElementById("hint").innerHTML=story.done?
+'화해의 밤 ♡ <button onclick="restart()">最初から</button>':
+"ジェイクにメッセージを送ってみて ♡";
+render();
 }
 function render(){
-let box=document.getElementById('messages');
-box.innerHTML='';
-history.forEach(m=>{
-let b=document.createElement('div');
-b.className='bubble '+m.who;
-b.textContent=m.text;
-box.appendChild(b);
-});
-box.scrollTop=box.scrollHeight;
+let day="";
+const area=document.getElementById("messages");
+area.innerHTML=story.messages.map(m=>{
+let heading="";
+if(m[2]&&m[2]!==day){
+day=m[2];
+heading=`<div class="day">${clean(day)}</div>`;
 }
-function send(){
-let input=document.getElementById('reply');
-let value=input.value.trim();
-if(!value)return;
-history.push({who:'me',text:value});
-input.value='';
-store();render();
-setTimeout(()=>{
-let answers=['ㅋㅋ 귀엽네','밥 먹었어?','나도 보고싶어','오늘 많이 바빴어','잘했어 '+name+' ❤️','잠깐 전화할까?'];
-history.push({who:'jake',text:answers[Math.floor(Math.random()*answers.length)]});
-store();render();
-},1200);
+return heading+`<div class="bubble ${m[0]==="me"?"me":"j"}">${clean(m[1])}</div>`;
+}).join("");
+area.scrollTop=area.scrollHeight;
 }
-function store(){localStorage.setItem('secretChat',JSON.stringify(history))}
-function saveName(){
-name=document.getElementById('name').value.trim()||'레이';
-localStorage.setItem('secretName',name);
-alert('저장했어 ♡');
+function send(e){
+e.preventDefault();
+const input=document.getElementById("message");
+const value=input.value.trim();
+if(!value||story.done)return;
+story.messages.push(["me",value]);
+input.value="";
+input.disabled=true;
+save();
+render();
+document.getElementById("hint").textContent="재윤이가 입력 중…";
+setTimeout(()=>reply(value),1100);
 }
-function nextDay(){
-date.setDate(date.getDate()+1);
-updateDate();
-alert('다음 날 ♡');
+function reply(value){
+let answer="";
+let s=story.stage;
+
+if(/別れ|別れる|헤어|終わり/.test(value)){
+answer="그렇게까지 힘들었구나. 내가 너무 늦게 알았어. 지금 당장 대답하라고 안 할게.";
+story.stage=2;
 }
-function updateDate(){
-document.getElementById('today').textContent=date.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'});
+else if(/時間|考え|잠깐|距離|待って/.test(value)){
+answer="응, 알겠어. 기다릴게. 그래도 우리 꼭 다시 얘기하자.";
+story.stage=Math.max(s,1);
 }
-function updateClock(){
-let t=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false});
-document.getElementById('topTime').textContent=t;
-document.getElementById('bigTime').textContent=t;
+else if(s===0){
+if(/寂|さみ|외로|서운|悲|つら|辛|我慢/.test(value)){
+answer="그동안 혼자 참았어? 미안해. 바쁘다는 말로 네 마음을 너무 당연하게 생각했어.";
+}else if(/怒|嫌|ひど|화나|싫/.test(value)){
+answer="화난 거 이해해. 변명하려는 거 아니야. 내가 연락 못 한 게 반복됐잖아.";
+}else{
+answer="나도 요즘 우리가 멀어진 것 같아서 신경 쓰였어. 네 마음을 듣고 싶어.";
 }
-document.getElementById('name').value=name;
-updateDate();updateClock();
-setInterval(updateClock,30000);
+story.stage=1;
+}
+else if(s===1){
+answer=/ごめ|미안/.test(value)?
+"네가 미안해할 일 아니야. 나도 더 솔직하게 말했어야 했어.":
+"말만 하면 소용없다는 거 알아. 앞으로는 바쁠 때도 먼저 연락할게.";
+story.stage=2;
+}
+else if(s===2){
+answer=/好き|愛|사랑|会いた|보고 싶/.test(value)?
+"나도 사랑해. 보고 싶었어. 다음에 만나면 핸드폰 내려놓고 오래 얘기하자.":
+"나 너랑 헤어지고 싶은 거 아니야. 다시 천천히 맞춰 가자. 괜찮겠어?";
+story.stage=3;
+}
+else{
+answer="고마워. 그리고 미안했어. 사랑해, 레이. 내일은 내가 먼저 연락할게. 잘 자 ♡";
+story.done=true;
+}
+story.messages.push(["j",answer]);
+save();
+chat();
+}
+function restart(){
+if(confirm("最初からやり直す？")){
+story={messages:beginning.map(x=>[...x]),stage:0,done:false};
+save();
+chat();
+}
+}
+function memo(){
+app.innerHTML=`<div class="page">
+<div class="bar"><button onclick="home()">‹</button><b>메모</b></div>
+<div style="padding:25px;line-height:2">
+まだ送れなかった本音。<p>忙しいのは分かってる。
+でも、前みたいに寝る前に少しだけ声が聞きたかった。</p>
+</div></div>`;
+}
+function settings(){
+app.innerHTML=`<div class="page">
+<div class="bar"><button onclick="home()">‹</button><b>설정</b></div>
+<div style="padding:25px">Our Secret Days ♡
+<p>これは創作チャットです。会話はこのブラウザに保存されます。</p>
+<button onclick="restart()">会話を最初からやり直す</button>
+</div></div>`;
+}
+function other(){
+app.innerHTML=`<div class="page">
+<div class="bar"><button onclick="home()">‹</button><b>앱</b></div>
+<div style="padding:25px">このアプリは準備中だよ ♡</div></div>`;
+}
+lock();
 </script>
 </body>
 </html>
